@@ -5,15 +5,15 @@ A REST API for managing products, resellers, orders and stock levels for a maker
 
 ## 2. Entities
 
-**Product**: ProductId, VariationId, Name, Category, NetPrice, StockQuantity, IsActive, RowVersion
+**Product**: ProductId, Ean, Name, Category, NetPrice, StockQuantity, IsActive, RowVersion
 
-**Reseller** ResellerId, Name, Email, Country, Class
+**Reseller**: ResellerId, Name, Email, Country
 
-**Order** OrderId, ResellerId, Status, CreatedAt
+**Order**: OrderId, ResellerId, Status, CreatedAt, TotalAmount
 
-**OrderLine** OrderLineId, OrderId, ProductId, Quantity, UnitPrice
+**OrderLine**: OrderLineId, OrderId, ProductId, Quantity, UnitPrice
 
-**StockMovement** StockMovementId, ProductId, Change, Reason, CreatedAt
+**StockMovement**: StockMovementId, ProductId, Change, Reason, CreatedAt
 
 ## 3. ER Diagram
 
@@ -39,8 +39,9 @@ Any other transition is rejected.
 4. Confirming reduces stock and creates a StockMovement per line. 
 5. Cancelling a Confirmed order restores the stock. Cancelling a Pending order doesn't touch stock. 
 6. Shipped and Delivered orders can't be edited or cancelled. 
-7. Total = sum of quantity per line, rounded to 2 decimals. 
+7. Total = sum of quantity x unit price per line, rounded to 2 decimals. 
 8. Stock can never go below 0, even if two orders are confirmed at the same time.
+9. UnitPrice is copied from the products NetPrice when the order is created, so later price changes don't affect existing orders.
 
 ## 6. API Endpoints
 
