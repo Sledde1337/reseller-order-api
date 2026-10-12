@@ -42,6 +42,7 @@ Any other transition is rejected.
 7. Total = sum of quantity x unit price per line, rounded to 2 decimals. 
 8. Stock can never go below 0, even if two orders are confirmed at the same time.
 9. UnitPrice is copied from the products NetPrice when the order is created, so later price changes don't affect existing orders.
+10. Resellers are identified by a unique email. A reseller who has orders cannot be deleted.
 
 ## 6. API Endpoints
 
