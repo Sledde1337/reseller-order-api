@@ -43,6 +43,8 @@ Any other transition is rejected.
 8. Stock can never go below 0, even if two orders are confirmed at the same time.
 9. UnitPrice is copied from the products NetPrice when the order is created, so later price changes don't affect existing orders.
 10. Resellers are identified by a unique email. A reseller who has orders cannot be deleted.
+11. If the same product appears on several lines of an order request, the quantities are merged into one line. 
+12. Stock is not checked or reserved when an order is created. It is checked and reduced when the order is confirmed. 
 
 ## 6. API Endpoints
 
