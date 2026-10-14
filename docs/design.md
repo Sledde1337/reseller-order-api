@@ -45,6 +45,7 @@ Any other transition is rejected.
 10. Resellers are identified by a unique email. A reseller who has orders cannot be deleted.
 11. If the same product appears on several lines of an order request, the quantities are merged into one line. 
 12. Stock is not checked or reserved when an order is created. It is checked and reduced when the order is confirmed. 
+13. All changes made by one status change are saved together in one database transaction. If any part fails, nothing changes.
 
 ## 6. API Endpoints
 

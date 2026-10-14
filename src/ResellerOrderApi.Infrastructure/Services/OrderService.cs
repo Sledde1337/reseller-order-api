@@ -113,6 +113,109 @@ public class OrderService : IOrderService
         return new CreateOrderResult(created, null);
     }
 
+        public async Task<TransitionResult> ConfirmAsync(Guid id)
+    {
+        var order = await LoadTrackedAsync(id);
+        if (order is null) return new(TransitionOutcome.NotFound, null, null);
+
+        if (order.Status != OrderStatus.Pending)
+            return InvalidTransition(order, OrderStatus.Confirmed);
+
+        var shortages = order.Lines
+            .Where(l => l.Product!.StockQuantity < l.Quantity)
+            .Select(l => $"'{l.Product!.Name}' (requested {l.Quantity}, in stock {l.Product.StockQuantity})")
+            .ToList();
+
+        if (shortages.Count > 0)
+            return new(TransitionOutcome.InsufficientStock, null,
+                "Insufficient stock for: " + string.Join("; ", shortages));
+
+        foreach (var line in order.Lines)
+        {
+            line.Product!.StockQuantity -= line.Quantity;
+            _db.StockMovements.Add(new StockMovement
+            {
+                StockMovementId = Guid.NewGuid(),
+                ProductId = line.ProductId,
+                Change = -line.Quantity,
+                Reason = StockMovementReason.OrderConfirmed,
+                CreatedAt = DateTime.UtcNow
+            });
+        }
+
+        order.Status = OrderStatus.Confirmed;
+        await _db.SaveChangesAsync();
+        return await SuccessAsync(order.OrderId);
+    }
+
+    public async Task<TransitionResult> ShipAsync(Guid id)
+    {
+        var order = await LoadTrackedAsync(id);
+        if (order is null) return new(TransitionOutcome.NotFound, null, null);
+
+        if (order.Status != OrderStatus.Confirmed)
+            return InvalidTransition(order, OrderStatus.Shipped);
+
+        order.Status = OrderStatus.Shipped;
+        await _db.SaveChangesAsync();
+        return await SuccessAsync(order.OrderId);
+    }
+
+    public async Task<TransitionResult> DeliverAsync(Guid id)
+    {
+        var order = await LoadTrackedAsync(id);
+        if (order is null) return new(TransitionOutcome.NotFound, null, null);
+
+        if (order.Status != OrderStatus.Shipped)
+            return InvalidTransition(order, OrderStatus.Delivered);
+
+        order.Status = OrderStatus.Delivered;
+        await _db.SaveChangesAsync();
+        return await SuccessAsync(order.OrderId);
+    }
+
+    public async Task<TransitionResult> CancelAsync(Guid id)
+    {
+        var order = await LoadTrackedAsync(id);
+        if (order is null) return new(TransitionOutcome.NotFound, null, null);
+
+        if (order.Status != OrderStatus.Pending && order.Status != OrderStatus.Confirmed)
+            return InvalidTransition(order, OrderStatus.Cancelled);
+
+        if (order.Status == OrderStatus.Confirmed)
+        {
+            foreach (var line in order.Lines)
+            {
+                line.Product!.StockQuantity += line.Quantity;
+                _db.StockMovements.Add(new StockMovement
+                {
+                    StockMovementId = Guid.NewGuid(),
+                    ProductId = line.ProductId,
+                    Change = line.Quantity,
+                    Reason = StockMovementReason.OrderCancelled,
+                    CreatedAt = DateTime.UtcNow
+                });
+            }
+        }
+
+        order.Status = OrderStatus.Cancelled;
+        await _db.SaveChangesAsync();
+        return await SuccessAsync(order.OrderId);
+    }
+
+    private Task<Order?> LoadTrackedAsync(Guid id) =>
+        _db.Orders
+            .Include(o => o.Lines)
+                .ThenInclude(l => l.Product)
+            .FirstOrDefaultAsync(o => o.OrderId == id);
+
+    private async Task<TransitionResult> SuccessAsync(Guid orderId) =>
+        new(TransitionOutcome.Success, await GetByIdAsync(orderId), null);
+
+    private static TransitionResult InvalidTransition(Order order, OrderStatus target) =>
+        new(TransitionOutcome.InvalidTransition, null,
+            $"An order with status {order.Status} cannot be changed to {target}.");
+
     private static CreateOrderResult Fail(string error) => new(null, error);
 
     private static OrderDto ToDto(Order o) => new(

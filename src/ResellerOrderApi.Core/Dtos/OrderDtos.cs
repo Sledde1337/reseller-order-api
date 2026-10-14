@@ -56,3 +56,13 @@ public class OrderQuery
 }
 
 public record CreateOrderResult(OrderDto? Order, string? Error);
+
+public enum TransitionOutcome
+{
+    Success,
+    NotFound,
+    InvalidTransition,
+    InsufficientStock
+}
+
+public record TransitionResult(TransitionOutcome Outcome, OrderDto? Order, string? Error);

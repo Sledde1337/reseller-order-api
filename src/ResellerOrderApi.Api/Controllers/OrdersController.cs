@@ -43,4 +43,48 @@ public class OrdersController : ControllerBase
 
         return CreatedAtAction(nameof(GetById), new { id = result.Order.OrderId }, result.Order);
     }
+
+        [HttpPost("{id:guid}/confirm")]
+    public async Task<ActionResult<OrderDto>> Confirm(Guid id) =>
+        ToActionResult(await _orders.ConfirmAsync(id));
+
+    [HttpPost("{id:guid}/ship")]
+    public async Task<ActionResult<OrderDto>> Ship(Guid id) =>
+        ToActionResult(await _orders.ShipAsync(id));
+
+    [HttpPost("{id:guid}/deliver")]
+    public async Task<ActionResult<OrderDto>> Deliver(Guid id) =>
+        ToActionResult(await _orders.DeliverAsync(id));
+
+    [HttpPost("{id:guid}/cancel")]
+    public async Task<ActionResult<OrderDto>> Cancel(Guid id) =>
+        ToActionResult(await _orders.CancelAsync(id));
+
+    private ActionResult<OrderDto> ToActionResult(TransitionResult result)
+    {
+        switch (result.Outcome)
+        {
+            case TransitionOutcome.Success:
+                return Ok(result.Order);
+
+            case TransitionOutcome.NotFound:
+                return NotFound();
+
+            case TransitionOutcome.InsufficientStock:
+                return Conflict(new ProblemDetails
+                {
+                    Title = "Insufficient stock",
+                    Detail = result.Error,
+                    Status = StatusCodes.Status409Conflict
+                });
+
+            default:
+                return Conflict(new ProblemDetails
+                {
+                    Title = "Invalid status change",
+                    Detail = result.Error,
+                    Status = StatusCodes.Status409Conflict
+                });
+        }
+    }
 }
