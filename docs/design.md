@@ -46,6 +46,7 @@ Any other transition is rejected.
 11. If the same product appears on several lines of an order request, the quantities are merged into one line. 
 12. Stock is not checked or reserved when an order is created. It is checked and reduced when the order is confirmed. 
 13. All changes made by one status change are saved together in one database transaction. If any part fails, nothing changes.
+14. Stock only changes through restocking and order status changes and every change creates a StockMovement. A products stock should therefore always equal the sum of its movements. 
 
 ## 6. API Endpoints
 

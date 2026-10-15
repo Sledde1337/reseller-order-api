@@ -18,6 +18,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IResellerService, ResellerService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IStockService, StockService>();
 
 var app = builder.Build();
 
