@@ -1,3 +1,4 @@
+using ResellerOrderApi.Api.ErrorHandling;
 using System.Text.Json.Serialization;
 using ResellerOrderApi.Core.Services;
 using Microsoft.EntityFrameworkCore;
@@ -7,8 +8,9 @@ using ResellerOrderApi.Infrastructure.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 
-builder.Services.AddControllers()
-    .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+builder.Services.AddControllers(o =>
+         o.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true)
+     .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 builder.Services.AddOpenApi();
 
@@ -19,6 +21,8 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IResellerService, ResellerService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IStockService, StockService>();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
@@ -35,6 +39,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseExceptionHandler();
 
 app.UseAuthorization();
 

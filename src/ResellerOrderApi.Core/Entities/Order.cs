@@ -10,4 +10,5 @@ public class Order
     public decimal TotalAmount { get; set; }
 
     public List<OrderLine> Lines { get; set; } = new();
+    public uint RowVersion { get; set; }
 }

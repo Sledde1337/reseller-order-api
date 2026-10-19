@@ -24,6 +24,7 @@ public class AppDbContext : DbContext
             e.Property(p => p.Category).HasConversion<string>().HasMaxLength(30);
             e.Property(p => p.NetPrice).HasPrecision(10, 2);
             e.Property(p => p.RowVersion).IsRowVersion();
+            e.ToTable(t => t.HasCheckConstraint("CK_Products_StockQuantity", "\"StockQuantity\" >= 0"));
         });
 
         modelBuilder.Entity<Reseller>(e =>
@@ -40,6 +41,7 @@ public class AppDbContext : DbContext
             e.HasKey(o => o.OrderId);
             e.Property(o => o.Status).HasConversion<string>().HasMaxLength(30);
             e.Property(o => o.TotalAmount).HasPrecision(12, 2);
+            e.Property(o => o.RowVersion).IsRowVersion();
             e.HasOne(o => o.Reseller)
                 .WithMany(r => r.Orders)
                 .HasForeignKey(o => o.ResellerId);

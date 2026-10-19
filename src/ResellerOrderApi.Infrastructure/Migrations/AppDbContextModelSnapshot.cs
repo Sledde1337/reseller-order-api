@@ -34,6 +34,12 @@ namespace ResellerOrderApi.Infrastructure.Migrations
                     b.Property<Guid>("ResellerId")
                         .HasColumnType("uuid");
 
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -120,7 +126,10 @@ namespace ResellerOrderApi.Infrastructure.Migrations
                     b.HasIndex("Ean")
                         .IsUnique();
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", t =>
+                        {
+                            t.HasCheckConstraint("CK_Products_StockQuantity", "\"StockQuantity\" >= 0");
+                        });
                 });
 
             modelBuilder.Entity("ResellerOrderApi.Core.Entities.Reseller", b =>

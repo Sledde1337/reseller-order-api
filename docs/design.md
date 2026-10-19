@@ -47,6 +47,7 @@ Any other transition is rejected.
 12. Stock is not checked or reserved when an order is created. It is checked and reduced when the order is confirmed. 
 13. All changes made by one status change are saved together in one database transaction. If any part fails, nothing changes.
 14. Stock only changes through restocking and order status changes and every change creates a StockMovement. A products stock should therefore always equal the sum of its movements. 
+15. Products and orders carry a version token. If two requests change the same row at the same moment, the second fails with 409 Conflict and the client can retry. 
 
 ## 6. API Endpoints
 
