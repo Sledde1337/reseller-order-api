@@ -25,3 +25,10 @@ public enum StockMovementReason
     OrderCancelled,
     Correction
 }
+
+public enum UserRole
+{
+    Admin,
+    SalesRep,
+    Reseller
+}

@@ -94,7 +94,8 @@ public class ResellerService : IResellerService
         var reseller = await _db.Resellers.FirstOrDefaultAsync(r => r.ResellerId == id);
         if (reseller is null) return DeleteResult.NotFound;
 
-        if (await _db.Orders.AnyAsync(o => o.ResellerId == id))
+        if (await _db.Orders.AnyAsync(o => o.ResellerId == id) ||
+            await _db.Users.AnyAsync(u => u.ResellerId == id))
             return DeleteResult.HasOrders;
 
         _db.Resellers.Remove(reseller);

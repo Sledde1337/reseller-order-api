@@ -12,6 +12,7 @@ public class AppDbContext : DbContext
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderLine> OrderLines => Set<OrderLine>();
     public DbSet<StockMovement> StockMovements => Set<StockMovement>();
+    public DbSet<User> Users => Set<User>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -66,6 +67,19 @@ public class AppDbContext : DbContext
             e.HasOne(s => s.Product)
                 .WithMany()
                 .HasForeignKey(s => s.ProductId);
+        });
+
+        modelBuilder.Entity<User>(e =>
+        {
+            e.HasKey(u => u.UserId);
+            e.Property(u => u.Email).IsRequired().HasMaxLength(200);
+            e.HasIndex(u => u.Email).IsUnique();
+            e.Property(u => u.PasswordHash).IsRequired().HasMaxLength(200);
+            e.Property(u => u.Role).HasConversion<string>().HasMaxLength(30);
+            e.HasOne(u => u.Reseller)
+                .WithMany()
+                .HasForeignKey(u => u.ResellerId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

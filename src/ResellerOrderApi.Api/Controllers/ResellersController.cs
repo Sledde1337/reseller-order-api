@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using ResellerOrderApi.Core.Dtos;
 using ResellerOrderApi.Core.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ResellerOrderApi.Api.Controllers;
 
 [ApiController]
 [Route("resellers")]
+[Authorize(Roles = "Admin,SalesRep")]
 public class ResellersController : ControllerBase
 {
     private readonly IResellerService _resellers;
@@ -60,7 +62,7 @@ public class ResellersController : ControllerBase
             DeleteResult.HasOrders => Conflict(new ProblemDetails
             {
                 Title = "Reseller has orders",
-                Detail = "A reseller with existing orders cannot be deleted.",
+                Detail = "A reseller with existing orders or user accounts cannot be deleted.",
                 Status = StatusCodes.Status409Conflict
             }),
             _ => StatusCode(StatusCodes.Status500InternalServerError)

@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using ResellerOrderApi.Core.Dtos;
 using ResellerOrderApi.Core.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ResellerOrderApi.Api.Controllers;
 
 [ApiController]
 [Route("orders")]
+[Authorize]
 public class OrdersController : ControllerBase
 {
     private readonly IOrderService _orders;
@@ -44,18 +46,22 @@ public class OrdersController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = result.Order.OrderId }, result.Order);
     }
 
-        [HttpPost("{id:guid}/confirm")]
+    [Authorize(Roles = "Admin,SalesRep")]
+    [HttpPost("{id:guid}/confirm")]
     public async Task<ActionResult<OrderDto>> Confirm(Guid id) =>
         ToActionResult(await _orders.ConfirmAsync(id));
 
+    [Authorize(Roles = "Admin,SalesRep")]
     [HttpPost("{id:guid}/ship")]
     public async Task<ActionResult<OrderDto>> Ship(Guid id) =>
         ToActionResult(await _orders.ShipAsync(id));
 
+    [Authorize(Roles = "Admin,SalesRep")]
     [HttpPost("{id:guid}/deliver")]
     public async Task<ActionResult<OrderDto>> Deliver(Guid id) =>
         ToActionResult(await _orders.DeliverAsync(id));
 
+    [Authorize(Roles = "Admin,SalesRep")]
     [HttpPost("{id:guid}/cancel")]
     public async Task<ActionResult<OrderDto>> Cancel(Guid id) =>
         ToActionResult(await _orders.CancelAsync(id));

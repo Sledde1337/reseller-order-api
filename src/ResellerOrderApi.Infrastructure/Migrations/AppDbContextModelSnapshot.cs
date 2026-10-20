@@ -188,6 +188,43 @@ namespace ResellerOrderApi.Infrastructure.Migrations
                     b.ToTable("StockMovements");
                 });
 
+            modelBuilder.Entity("ResellerOrderApi.Core.Entities.User", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<Guid?>("ResellerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.HasKey("UserId");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("ResellerId");
+
+                    b.ToTable("Users");
+                });
+
             modelBuilder.Entity("ResellerOrderApi.Core.Entities.Order", b =>
                 {
                     b.HasOne("ResellerOrderApi.Core.Entities.Reseller", "Reseller")
@@ -227,6 +264,16 @@ namespace ResellerOrderApi.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("ResellerOrderApi.Core.Entities.User", b =>
+                {
+                    b.HasOne("ResellerOrderApi.Core.Entities.Reseller", "Reseller")
+                        .WithMany()
+                        .HasForeignKey("ResellerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Reseller");
                 });
 
             modelBuilder.Entity("ResellerOrderApi.Core.Entities.Order", b =>

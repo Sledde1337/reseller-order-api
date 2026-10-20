@@ -1,5 +1,6 @@
 using Bogus;
 using ResellerOrderApi.Core.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace ResellerOrderApi.Infrastructure;
 
@@ -33,6 +34,45 @@ public static class DbSeeder
         await db.SaveChangesAsync();
     }
 
+        public static async Task SeedUsersAsync(AppDbContext db)
+    {
+        if (await db.Users.AnyAsync()) return;
+
+        var users = new List<User>
+        {
+            new()
+            {
+                UserId = Guid.NewGuid(),
+                Email = "admin@example.com",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
+                Role = UserRole.Admin
+            },
+            new()
+            {
+                UserId = Guid.NewGuid(),
+                Email = "sales@example.com",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Sales123!"),
+                Role = UserRole.SalesRep
+            }
+        };
+
+        var reseller = await db.Resellers.OrderBy(r => r.Name).FirstOrDefaultAsync();
+        if (reseller is not null)
+        {
+            users.Add(new User
+            {
+                UserId = Guid.NewGuid(),
+                Email = "reseller@example.com",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Reseller123!"),
+                Role = UserRole.Reseller,
+                ResellerId = reseller.ResellerId
+            });
+        }
+
+        db.Users.AddRange(users);
+        await db.SaveChangesAsync();
+    }
+
     private static List<Product> BuildProducts(Faker faker)
     {
         var products = new List<Product>();
@@ -50,7 +90,6 @@ public static class DbSeeder
                 Name = name,
                 Category = category,
                 NetPrice = Math.Round(faker.Random.Decimal(minPrice, maxPrice), 2),
-                // Roughly 1 in 10 products is out of stock, and 1 in 20 is discontinued
                 StockQuantity = faker.Random.Bool(0.1f) ? 0 : faker.Random.Int(5, 200),
                 IsActive = !faker.Random.Bool(0.05f)
             });

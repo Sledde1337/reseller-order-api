@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using ResellerOrderApi.Core.Dtos;
 using ResellerOrderApi.Core.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ResellerOrderApi.Api.Controllers;
 
 [ApiController]
 [Route("products")]
+[Authorize]
 public class ProductsController : ControllerBase
 {
     private readonly IProductService _products;
@@ -28,6 +30,7 @@ public class ProductsController : ControllerBase
         return product is null ? NotFound() : Ok(product);
     }
 
+    [Authorize(Roles = "Admin,SalesRep")]
     [HttpPost]
     public async Task<ActionResult<ProductDto>> Create(CreateProductRequest request)
     {
@@ -43,6 +46,7 @@ public class ProductsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = created.ProductId }, created);
     }
 
+    [Authorize(Roles = "Admin,SalesRep")]
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<ProductDto>> Update(Guid id, UpdateProductRequest request)
     {
@@ -50,6 +54,7 @@ public class ProductsController : ControllerBase
         return updated is null ? NotFound() : Ok(updated);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {

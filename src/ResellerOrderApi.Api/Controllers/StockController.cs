@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using ResellerOrderApi.Core.Dtos;
 using ResellerOrderApi.Core.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ResellerOrderApi.Api.Controllers;
 
 [ApiController]
 [Route("products/{productId:guid}")]
+[Authorize(Roles = "Admin,SalesRep")]
 public class StockController : ControllerBase
 {
     private readonly IStockService _stock;

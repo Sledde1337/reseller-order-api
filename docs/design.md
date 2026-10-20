@@ -48,6 +48,9 @@ Any other transition is rejected.
 13. All changes made by one status change are saved together in one database transaction. If any part fails, nothing changes.
 14. Stock only changes through restocking and order status changes and every change creates a StockMovement. A products stock should therefore always equal the sum of its movements. 
 15. Products and orders carry a version token. If two requests change the same row at the same moment, the second fails with 409 Conflict and the client can retry. 
+16. Unauthenticated requests get 401. Authenticated users without the required role get 403.
+17. A wrong email and a wrong password produce the same error, so the API never reveals which emails exist.
+
 
 ## 6. API Endpoints
 
@@ -57,3 +60,10 @@ Any other transition is rejected.
 | Resellers | Same five endpoints under /resellers |
 | Orders | POST /orders, GET /orders/{id}, GET /orders, POST /orders/{id}/confirm, /ship, /deliver, /cancel |
 | Stock | POST /products/{id}/restock, GET /products/{id}/stock-history |
+
+## 7. Authentication and Roles 
+Users log in with e-mail and password and receive a JWT (valid for 60 minutes). Passwords are stored as BCrypt hashes. 
+Role	    Permissions
+Admin	    Everything
+SalesRep	Products, resellers, orders, and stock
+Reseller	Read products, create and read orders
