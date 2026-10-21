@@ -50,6 +50,9 @@ Any other transition is rejected.
 15. Products and orders carry a version token. If two requests change the same row at the same moment, the second fails with 409 Conflict and the client can retry. 
 16. Unauthenticated requests get 401. Authenticated users without the required role get 403.
 17. A wrong email and a wrong password produce the same error, so the API never reveals which emails exist.
+18. A reseller user can only see and create orders for themselves. Other resellers orders return 404 so their existence is not revealed. 
+19. Only admins can manage users. A reseller user must be linked to a reseller and other roles must not be. 
+20. Deactivated users cannot log in. Tokens issued before deactivation remain valid until they expire. 
 
 
 ## 6. API Endpoints

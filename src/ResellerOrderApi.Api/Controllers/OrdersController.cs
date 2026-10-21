@@ -20,19 +20,37 @@ public class OrdersController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<PagedResult<OrderSummaryDto>>> GetAll([FromQuery] OrderQuery query)
     {
+        if (IsReseller)
+        {
+            if (CurrentResellerId is null) return Forbid();
+            query.ResellerId = CurrentResellerId;
+        }
+
         return Ok(await _orders.GetAllAsync(query));
+
     }
 
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<OrderDto>> GetById(Guid id)
     {
         var order = await _orders.GetByIdAsync(id);
-        return order is null ? NotFound() : Ok(order);
+        if (order is null) return NotFound();
+
+        if (IsReseller && order.ResellerId != CurrentResellerId) return NotFound();
+
+        return Ok(order);
+
     }
 
     [HttpPost]
     public async Task<ActionResult<OrderDto>> Create(CreateOrderRequest request)
     {
+        if (IsReseller)
+        {
+            if (CurrentResellerId is null) return Forbid();
+            request.ResellerId = CurrentResellerId.Value;
+        }
+
         var result = await _orders.CreateAsync(request);
 
         if (result.Order is null)
@@ -65,6 +83,11 @@ public class OrdersController : ControllerBase
     [HttpPost("{id:guid}/cancel")]
     public async Task<ActionResult<OrderDto>> Cancel(Guid id) =>
         ToActionResult(await _orders.CancelAsync(id));
+
+    private bool IsReseller => User.IsInRole("Reseller");
+
+    private Guid? CurrentResellerId =>
+        Guid.TryParse(User.FindFirst("resellerId")?.Value, out var id) ? id : null;
 
     private ActionResult<OrderDto> ToActionResult(TransitionResult result)
     {
