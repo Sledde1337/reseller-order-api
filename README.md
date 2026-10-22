@@ -14,3 +14,6 @@ Work in progress
 
 ## Tech stack
 ASP.NET Core · EF Core · PostgreSQL · Docker · xUnit
+
+## Running the tests
+The integration tests start the API against a throwaway PostgreSQL container, so Docker must be running: dotnet test

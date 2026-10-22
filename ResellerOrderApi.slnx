@@ -4,4 +4,7 @@
     <Project Path="src/ResellerOrderApi.Core/ResellerOrderApi.Core.csproj" />
     <Project Path="src/ResellerOrderApi.Infrastructure/ResellerOrderApi.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ResellerOrderApi.Tests/ResellerOrderApi.Tests.csproj" />
+  </Folder>
 </Solution>
