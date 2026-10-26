@@ -28,6 +28,7 @@ builder.Services.AddOpenApi(options =>
 {
     options.AddDocumentTransformer((document, context, cancellationToken) =>
     {
+        document.Servers = new List<OpenApiServer> { new() { Url = "/" } };
         document.Components ??= new OpenApiComponents();
         document.Components.SecuritySchemes = new Dictionary<string, IOpenApiSecurityScheme>
         {
