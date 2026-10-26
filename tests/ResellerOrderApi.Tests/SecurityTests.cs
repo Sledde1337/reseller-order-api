@@ -163,4 +163,14 @@ public class SecurityTests
             new { email, password = ApiHelpers.UserPassword });
         Assert.Equal(HttpStatusCode.Unauthorized, login.StatusCode);
     }
+
+        [Fact]
+    public async Task Health_endpoint_is_public_and_healthy()
+    {
+        var client = _fx.Factory.CreateClient();
+
+        var response = await client.GetAsync("/health");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
 }
