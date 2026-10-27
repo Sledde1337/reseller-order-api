@@ -23,18 +23,16 @@ ASP.NET Core · EF Core · PostgreSQL · JWT · BCrypt · Serilog · xUnit · Te
 Requirements: .NET SDK, Docker, and the EF Core tool (`dotnet tool install --global dotnet-ef`).
 
 ```bash
-# 1. Start PostgreSQL
-docker compose up -d
-
-# 2. Create the database tables
-dotnet ef database update --project src/ResellerOrderApi.Infrastructure --startup-project src/ResellerOrderApi.Api
-
-# 3. Run the API
-dotnet run --project src/ResellerOrderApi.Api
+docker compose --profile app up --build
 ```
 
-In the Development environment the app seeds demo data on startup (50 products, 20 resellers and
-three users). Open `/scalar` on the address the console prints to explore and try the API.
+In GitHub Codespaces, Docker's internal networking can prevent containers from reaching each other.
+There, use the host-network variant instead:
+
+```bash
+docker compose up -d
+docker compose -f docker-compose.host.yml up --build
+```
 
 ### Demo accounts (Development only)
 | Role | Email | Password |
