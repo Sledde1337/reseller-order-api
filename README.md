@@ -1,5 +1,7 @@
 # Reseller Order API
 
+![CI](https://github.com/Sledde1337/reseller-order-api/actions/workflows/ci.yml/badge.svg)
+
 A REST API for managing products, resellers, orders and stock for a maker-tools
 distributor (3D printers, filament, scanners, spare parts). Built with ASP.NET Core,
 Entity Framework Core and PostgreSQL.
