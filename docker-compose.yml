@@ -10,6 +10,25 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d reseller_orders"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: .
+    container_name: reseller-api
+    profiles: ["app"]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Default: Host=db;Port=5432;Database=reseller_orders;Username=postgres;Password=postgres
+    ports:
+      - "5104:8080"
 
 volumes:
   pgdata:
