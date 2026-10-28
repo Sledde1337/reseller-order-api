@@ -203,4 +203,34 @@ public class OrderLifecycleTests
         Assert.Equal(new[] { HttpStatusCode.OK, HttpStatusCode.Conflict }, codes);
         Assert.Equal(0, await ApiHelpers.GetStockAsync(admin, product));
     }
+
+    [Fact]
+    public async Task Concurrent_confirmations_never_lose_a_stock_update()
+    {
+        var admin = await _fx.AdminAsync();
+        var reseller = await ApiHelpers.CreateResellerAsync(admin);
+
+        for (var round = 0; round < 10; round++)
+        {
+            var product = await ApiHelpers.CreateProductAsync(admin, stock: 10);
+            var order1 = await ApiHelpers.CreateOrderAsync(admin, reseller, product, quantity: 5);
+            var order2 = await ApiHelpers.CreateOrderAsync(admin, reseller, product, quantity: 5);
+
+            var responses = await Task.WhenAll(
+                admin.PostAsync($"/orders/{order1}/confirm", null),
+                admin.PostAsync($"/orders/{order2}/confirm", null));
+
+            Assert.All(responses, r =>
+                Assert.Contains(r.StatusCode, new[] { HttpStatusCode.OK, HttpStatusCode.Conflict }));
+
+            var succeeded = responses.Count(r => r.StatusCode == HttpStatusCode.OK);
+            var stock = await ApiHelpers.GetStockAsync(admin, product);
+            Assert.Equal(10 - 5 * succeeded, stock);
+
+            var history = await admin.GetFromJsonAsync<JsonElement>($"/products/{product}/stock-history");
+            var movementSum = history.GetProperty("items").EnumerateArray()
+                .Sum(m => m.GetProperty("change").GetInt32());
+            Assert.Equal(stock, movementSum);
+        }
+    }
 }

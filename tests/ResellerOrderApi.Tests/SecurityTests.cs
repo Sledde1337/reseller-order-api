@@ -164,7 +164,7 @@ public class SecurityTests
         Assert.Equal(HttpStatusCode.Unauthorized, login.StatusCode);
     }
 
-        [Fact]
+    [Fact]
     public async Task Health_endpoint_is_public_and_healthy()
     {
         var client = _fx.Factory.CreateClient();
