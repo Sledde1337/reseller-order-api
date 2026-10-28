@@ -30,7 +30,7 @@ public class OrderService : IOrderService
         var totalCount = await orders.CountAsync();
 
         var items = await orders
-            .OrderByDescending(o => o.CreatedAt)
+            .OrderByDescending(o => o.CreatedAt).ThenBy(o => o.OrderId)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Select(o => new OrderSummaryDto(
@@ -113,7 +113,7 @@ public class OrderService : IOrderService
         return new CreateOrderResult(created, null);
     }
 
-        public async Task<TransitionResult> ConfirmAsync(Guid id)
+    public async Task<TransitionResult> ConfirmAsync(Guid id)
     {
         var order = await LoadTrackedAsync(id);
         if (order is null) return new(TransitionOutcome.NotFound, null, null);

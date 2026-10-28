@@ -36,7 +36,7 @@ public class ProductService : IProductService
         var totalCount = await products.CountAsync();
 
         var entities = await products
-            .OrderBy(p => p.Name)
+            .OrderBy(p => p.Name).ThenBy(p => p.ProductId)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();

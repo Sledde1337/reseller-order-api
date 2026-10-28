@@ -34,7 +34,7 @@ public static class DbSeeder
         await db.SaveChangesAsync();
     }
 
-        public static async Task SeedUsersAsync(AppDbContext db)
+    public static async Task SeedUsersAsync(AppDbContext db)
     {
         if (await db.Users.AnyAsync()) return;
 

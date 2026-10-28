@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace ResellerOrderApi.Api.ErrorHandling;
 
@@ -26,6 +27,22 @@ public class GlobalExceptionHandler : IExceptionHandler
                 Status = StatusCodes.Status409Conflict,
                 Title = "Conflict",
                 Detail = "The data was changed by another request at the same time. Please retry."
+            };
+        }
+        else if (exception is DbUpdateException
+        {
+            InnerException: PostgresException
+            {
+                SqlState: PostgresErrorCodes.UniqueViolation or PostgresErrorCodes.ForeignKeyViolation
+            }
+        })
+        {
+            _logger.LogWarning(exception, "Constraint violation on {Path}", httpContext.Request.Path);
+            problem = new ProblemDetails
+            {
+                Status = StatusCodes.Status409Conflict,
+                Title = "Conflict",
+                Detail = "The request conflicts with existing data, for example a value that must be unique or a record that is still in use."
             };
         }
         else

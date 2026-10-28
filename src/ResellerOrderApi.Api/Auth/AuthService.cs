@@ -7,6 +7,9 @@ namespace ResellerOrderApi.Api.Auth;
 
 public class AuthService : IAuthService
 {
+    private static readonly string DummyHash =
+        BCrypt.Net.BCrypt.HashPassword("timing-equalizer-not-a-real-password");
+
     private readonly AppDbContext _db;
     private readonly JwtTokenService _tokens;
 
@@ -23,7 +26,9 @@ public class AuthService : IAuthService
         var user = await _db.Users
             .FirstOrDefaultAsync(u => u.Email == email && u.IsActive);
 
-        if (user is null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+        var passwordOk = BCrypt.Net.BCrypt.Verify(request.Password, user?.PasswordHash ?? DummyHash);
+
+        if (user is null || !passwordOk)
             return null;
 
         var (token, expiresAt) = _tokens.CreateToken(user);

@@ -1,6 +1,0 @@
-@ResellerOrderApi.Api_HostAddress = http://localhost:5104
-
-GET {{ResellerOrderApi.Api_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

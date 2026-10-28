@@ -37,7 +37,7 @@ public class ResellerService : IResellerService
         var totalCount = await resellers.CountAsync();
 
         var entities = await resellers
-            .OrderBy(r => r.Name)
+            .OrderBy(r => r.Name).ThenBy(r => r.ResellerId)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();

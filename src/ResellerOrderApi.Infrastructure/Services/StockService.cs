@@ -53,7 +53,7 @@ public class StockService : IStockService
         var totalCount = await movements.CountAsync();
 
         var items = await movements
-            .OrderByDescending(m => m.CreatedAt)
+            .OrderByDescending(m => m.CreatedAt).ThenBy(m => m.StockMovementId)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Select(m => new StockMovementDto(
