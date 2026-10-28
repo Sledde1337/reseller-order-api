@@ -9,7 +9,9 @@ A REST API for managing products, resellers, orders and stock levels for a maker
 
 **Reseller**: ResellerId, Name, Email, Country
 
-**Order**: OrderId, ResellerId, Status, CreatedAt, TotalAmount
+**Order**: OrderId, ResellerId, Status, CreatedAt, TotalAmount, RowVersion
+
+**User**: UserId, Email, PasswordHash, Role, IsActive, ResellerId (only for Reseller users)
 
 **OrderLine**: OrderLineId, OrderId, ProductId, Quantity, UnitPrice
 
@@ -23,7 +25,9 @@ erDiagram
     ORDER ||--|{ ORDER_LINE : contains
     PRODUCT ||--o{ ORDER_LINE : "appears in"
     PRODUCT ||--o{ STOCK_MOVEMENT : tracks
+    RESELLER |o--o{ USER_ACCOUNT : "linked to"
 ```
+
 ## 4. Order Lifecycle 
 - Pending → Confirmed or Cancelled 
 - Confirmed → Shipped or Cancelled 
@@ -49,24 +53,28 @@ Any other transition is rejected.
 14. Stock only changes through restocking and order status changes and every change creates a StockMovement. A products stock should therefore always equal the sum of its movements. 
 15. Products and orders carry a version token. If two requests change the same row at the same moment, the second fails with 409 Conflict and the client can retry. 
 16. Unauthenticated requests get 401. Authenticated users without the required role get 403.
-17. A wrong email and a wrong password produce the same error, so the API never reveals which emails exist.
+17. A wrong email and a wrong password produce the same error and take the same time, so the API never reveals which emails exist.
 18. A reseller user can only see and create orders for themselves. Other resellers orders return 404 so their existence is not revealed. 
 19. Only admins can manage users. A reseller user must be linked to a reseller and other roles must not be. 
 20. Deactivated users cannot log in. Tokens issued before deactivation remain valid until they expire. 
-
+21. Unique and foreign-key violations that slip past the pre-checks (for example two simultaneous requests creating the same email) are returned as 409 Conflict, never 500.
 
 ## 6. API Endpoints
 
 | Resource | Endpoints |
 |---|---|
-| Products | GET /products, GET /products/{id}, POST /products, PUT /products/{id}, DELETE /products/{id} |
+| Products | GET /products, GET /products/{id}, POST /products, PUT /products/{id}, DELETE /products/{id} (Admin only) |
 | Resellers | Same five endpoints under /resellers |
 | Orders | POST /orders, GET /orders/{id}, GET /orders, POST /orders/{id}/confirm, /ship, /deliver, /cancel |
 | Stock | POST /products/{id}/restock, GET /products/{id}/stock-history |
+| Auth | POST /auth/login (public), GET /auth/me |
+| Users | GET /users, POST /users, POST /users/{id}/deactivate (Admin only) |
+| Operations | GET /health (public) |
 
 ## 7. Authentication and Roles 
-Users log in with e-mail and password and receive a JWT (valid for 60 minutes). Passwords are stored as BCrypt hashes. 
-Role	    Permissions
-Admin	    Everything
-SalesRep	Products, resellers, orders, and stock
-Reseller	Read products, create and read orders
+
+| Role | Permissions |
+|---|---|
+| Admin | Everything, including deactivating products and managing users |
+| SalesRep | Create and update products, resellers, orders and stock |
+| Reseller | Read products, create and read their own orders |

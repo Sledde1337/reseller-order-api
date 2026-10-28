@@ -22,7 +22,9 @@ ASP.NET Core · EF Core · PostgreSQL · JWT · BCrypt · Serilog · xUnit · Te
 
 ## Getting started
 
-Requirements: .NET SDK, Docker, and the EF Core tool (`dotnet tool install --global dotnet-ef`).
+Requirements: Docker. To run the API without Docker you also need the .NET 10 SDK.
+
+**Option A: everything in Docker**
 
 ```bash
 docker compose --profile app up --build
@@ -36,6 +38,17 @@ docker compose up -d
 docker compose -f docker-compose.host.yml up --build
 ```
 
+**Option B: run the API locally**
+
+```bash
+docker compose up -d                         
+dotnet run --project src/ResellerOrderApi.Api
+```
+
+In the Development environment the app applies the migrations and seeds demo data on startup
+(50 products, 20 resellers and three users). The API listens on `http://localhost:5104`.
+Open `http://localhost:5104/scalar` to explore and try it, and `/health` to check that it is running.
+
 ### Demo accounts (Development only)
 | Role | Email | Password |
 |---|---|---|
@@ -47,8 +60,8 @@ Log in with `POST /auth/login`, then send the returned token as `Authorization: 
 
 | Role | Can do |
 |---|---|
-| Admin | Everything, including user management |
-| SalesRep | Products, resellers, orders (including status changes) and stock |
+| Admin | Everything, including deactivating products and managing users |
+| SalesRep | Create and update products, manage resellers, orders (including status changes) and stock |
 | Reseller | Read products, create and read their own orders |
 
 ## Running the tests
@@ -63,8 +76,8 @@ dotnet test
 The solution has three projects, each with one job:
 
 - **Core:** entities, DTOs and service interfaces. It depends on nothing else.
-- **Infrastructure:** EF Core, the database context, migrations and the service implementations.
-- **Api:** controllers, authentication, error handling and startup.
+- **Infrastructure:** EF Core, the database context, migrations, and the services for products, resellers, orders, stock and users.
+- **Api:** controllers, JWT authentication (token creation and login), error handling and startup.
 
 Controllers only translate between HTTP and the services. All business rules live in the
 services, which keeps them testable.
@@ -76,7 +89,8 @@ services, which keeps them testable.
 - **Optimistic concurrency:** products and orders carry a version token (PostgreSQL's `xmin`). If two requests change the same row at once, the second gets a 409 and can retry. A database check constraint also guarantees that stock never goes below zero.
 - **404 instead of 403 for other resellers orders**, so the API doesn't reveal which orders exist.
 - **Soft delete for products:** discontinued products stay visible in old orders. A reseller with orders or user accounts cannot be deleted.
-- **Same error for wrong email and wrong password** at login, so the API never reveals which emails exist.
+- **Same error, and the same response time, for a wrong email and a wrong password** at login, so the API doesn't reveal which emails exist. (A dummy hash is verified when the user doesn't exist.)
+- **Unique-constraint races return 409:** if two simultaneous requests create the same reseller email or product EAN, the database constraint rejects the second one and the API answers 409, not 500.
 
 The full design (entities, business rules and endpoints) is in [docs/design.md](docs/design.md).
 
@@ -90,6 +104,8 @@ connection string as environment variables. Never commit real secrets.
 - There are no refresh tokens, password reset or order editing.
 - Prices are in a single currency with no tax handling.
 - The API is not deployed anywhere. It is meant to be run locally.
+- There is no rate limiting or lockout on login.
+- The Docker setup runs in the Development environment, which seeds demo accounts with known passwords and exposes `/scalar`. The database password in the compose files is for local use only.
 
 ## Possible next steps
 - Reporting endpoints (top products, revenue per reseller)
