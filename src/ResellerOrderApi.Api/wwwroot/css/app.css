@@ -1,0 +1,183 @@
+:root {
+  --bg: #f4f6f8;
+  --surface: #ffffff;
+  --text: #1c2430;
+  --muted: #667085;
+  --border: #d9dfe7;
+  --accent: #2457d6;
+  --accent-text: #ffffff;
+  --danger: #b42318;
+  --ok-bg: #dcfae6;   --ok-text: #067647;
+  --warn-bg: #fef0c7; --warn-text: #93370d;
+  --info-bg: #dbe7ff; --info-text: #1d4ed8;
+  --bad-bg: #fee4e2;  --bad-text: #b42318;
+  --grey-bg: #eaecf0; --grey-text: #475467;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f141b;
+    --surface: #18202a;
+    --text: #e6eaf0;
+    --muted: #9aa5b4;
+    --border: #2b3644;
+    --accent: #5b8cff;
+    --accent-text: #0b1220;
+    --danger: #f97066;
+    --ok-bg: #0b3b2a;   --ok-text: #75e0a7;
+    --warn-bg: #4a2e0a; --warn-text: #fec84b;
+    --info-bg: #14295c; --info-text: #9bbcff;
+    --bad-bg: #4a1612;  --bad-text: #fda29b;
+    --grey-bg: #2b3644; --grey-text: #c3ccd8;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+h1 { font-size: 22px; }
+h2 { font-size: 18px; }
+
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.error { color: var(--danger); margin: 8px 0; min-height: 1.2em; }
+.num { text-align: right; white-space: nowrap; }
+
+/* ---- top bar ---- */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.topbar[hidden] { display: none; }
+.topbar nav { display: flex; gap: 4px; }
+.who { margin-left: auto; color: var(--muted); font-size: 14px; }
+.tab { background: transparent; color: var(--muted); border-color: transparent; }
+.tab[aria-current="true"] { color: var(--text); border-bottom: 2px solid var(--accent); border-radius: 0; }
+
+main { max-width: 1100px; margin: 0 auto; padding: 16px; }
+
+/* ---- controls ---- */
+button, input, select {
+  font: inherit;
+  color: inherit;
+}
+button {
+  background: var(--accent);
+  color: var(--accent-text);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+button:hover:not(:disabled) { filter: brightness(1.08); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+button.ghost { background: transparent; color: var(--text); border-color: var(--border); }
+button.danger { background: transparent; color: var(--danger); border-color: var(--danger); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+input, select {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  max-width: 100%;
+}
+label { display: block; font-size: 14px; color: var(--muted); margin: 12px 0 4px; }
+
+/* ---- cards and layout ---- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; align-items: start; }
+.cart { position: sticky; top: 16px; }
+.filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.filters input[type="search"] { flex: 1 1 220px; }
+
+.login { max-width: 380px; margin: 48px auto; }
+.login input { width: 100%; }
+.login button[type="submit"] { width: 100%; margin-top: 8px; }
+.demo { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 16px; font-size: 13px; }
+.demo button { padding: 2px 10px; font-size: 13px; }
+
+/* ---- tables ---- */
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { font-size: 13px; color: var(--muted); font-weight: 600; }
+tr:last-child > td { border-bottom: 0; }
+th.num, td.num { text-align: right; }
+.table-wrap > p { padding: 12px; margin: 0; }
+.name { font-weight: 600; }
+.detail-row > td { background: var(--bg); }
+table.inner { background: var(--surface); border: 1px solid var(--border); }
+.actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+
+.badge {
+  display: inline-block;
+  padding: 1px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--grey-bg);
+  color: var(--grey-text);
+}
+.status-pending   { background: var(--warn-bg); color: var(--warn-text); }
+.status-confirmed { background: var(--info-bg); color: var(--info-text); }
+.status-shipped   { background: var(--info-bg); color: var(--info-text); }
+.status-delivered { background: var(--ok-bg);   color: var(--ok-text); }
+.status-cancelled { background: var(--bad-bg);  color: var(--bad-text); }
+
+.pager { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--border); font-size: 14px; color: var(--muted); }
+
+/* ---- cart ---- */
+.cart-lines { list-style: none; margin: 0 0 12px; padding: 0; }
+.cart-lines li { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border); }
+.cart-lines .grow { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.cart-lines input { width: 64px; }
+.cart-lines button { padding: 2px 8px; }
+.cart select { width: 100%; }
+.total { display: flex; justify-content: space-between; margin: 16px 0 12px; }
+.cart > button { width: 100%; }
+
+/* ---- toast ---- */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  max-width: min(560px, calc(100vw - 32px));
+  background: var(--text);
+  color: var(--bg);
+  padding: 10px 16px;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+.toast[hidden] { display: none; }
+.toast.error { background: var(--danger); color: #fff; }
+
+@media (max-width: 800px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .cart { position: static; }
+}
+
+@media (max-width: 600px) {
+  .hide-sm { display: none; }
+  th, td { padding: 8px 6px; }
+  .name { overflow-wrap: anywhere; }
+  td button { padding: 4px 8px; }
+}

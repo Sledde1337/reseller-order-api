@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reseller Order Portal</title>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <header class="topbar" id="topbar" hidden>
+    <strong class="brand">Reseller Orders</strong>
+    <nav>
+      <button class="tab" data-view="products">Products</button>
+      <button class="tab" data-view="orders">Orders</button>
+    </nav>
+    <span class="who" id="who"></span>
+    <button class="ghost" id="logout">Log out</button>
+  </header>
+
+  <main id="app"></main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

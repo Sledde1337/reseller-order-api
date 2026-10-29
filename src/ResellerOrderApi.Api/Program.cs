@@ -108,6 +108,10 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
+app.UseDefaultFiles();
+
+app.UseStaticFiles();
+
 app.UseSerilogRequestLogging();
 
 app.UseExceptionHandler();

@@ -8,6 +8,10 @@ Entity Framework Core and PostgreSQL.
 
 ![API documentation](docs/api-docs.png)
 
+![Web UI: products and order cart](docs/ui-products.png)
+
+![Web UI: order details and status actions](docs/ui-orders.png)
+
 ## Features
 - **Products, resellers and orders** with paging, filtering and search
 - **Order lifecycle:** Pending → Confirmed → Shipped → Delivered (or Cancelled), with illegal transitions rejected
@@ -16,6 +20,7 @@ Entity Framework Core and PostgreSQL.
 - **JWT authentication** with three roles (Admin, SalesRep, Reseller) and ownership rules, so a reseller only sees their own orders
 - **Integration tests** that run against a real PostgreSQL database
 - **Interactive API documentation** (Scalar) and a health check endpoint
+- **A small web UI** (plain HTML, CSS and JavaScript, no build step) for browsing products, placing orders and managing the order lifecycle.
 
 ## Tech stack
 ASP.NET Core · EF Core · PostgreSQL · JWT · BCrypt · Serilog · xUnit · Testcontainers · Docker
@@ -47,7 +52,7 @@ dotnet run --project src/ResellerOrderApi.Api
 
 In the Development environment the app applies the migrations and seeds demo data on startup
 (50 products, 20 resellers and three users). The API listens on `http://localhost:5104`.
-Open `http://localhost:5104/scalar` to explore and try it, and `/health` to check that it is running.
+Open `http://localhost:5104/scalar` to explore and try it, and `/health` to check that it is running. The web UI is at the root address (`http://localhost:5104/`).
 
 ### Demo accounts (Development only)
 | Role | Email | Password |
@@ -106,6 +111,7 @@ connection string as environment variables. Never commit real secrets.
 - The API is not deployed anywhere. It is meant to be run locally.
 - There is no rate limiting or lockout on login.
 - The Docker setup runs in the Development environment, which seeds demo accounts with known passwords and exposes `/scalar`. The database password in the compose files is for local use only.
+- The login page shows quick-fill buttons for the demo accounts. They are for development only and should be removed (the DEMO_ACCOUNTS list in app.js) before any real deployment.
 
 ## Possible next steps
 - Reporting endpoints (top products, revenue per reseller)
